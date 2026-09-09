@@ -3,3 +3,5 @@ uvicorn
 pymongo
 argon2-cffi==23.1.0
 mongomock
+httpx
+watchfiles
