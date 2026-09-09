@@ -2,11 +2,27 @@
 MongoDB database configuration and setup for Mergington High School API
 """
 
+import os
+import logging
+
 from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError
 from argon2 import PasswordHasher, exceptions as argon2_exceptions
 
+logger = logging.getLogger(__name__)
+
 # Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+mongo_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+client = MongoClient(mongo_uri, serverSelectionTimeoutMS=2000)
+
+try:
+    client.admin.command("ping")
+except ServerSelectionTimeoutError:
+    import mongomock
+
+    logger.warning("MongoDB is unavailable; using an in-memory database")
+    client = mongomock.MongoClient()
+
 db = client['mergington_high']
 activities_collection = db['activities']
 teachers_collection = db['teachers']
